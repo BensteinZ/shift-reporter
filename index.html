@@ -18,14 +18,12 @@
     input:focus, select:focus, textarea:focus { outline: none; border-color: #3b82f6; }
     textarea { resize: none; }
     .toggle-row { display: flex; gap: 8px; }
-    .toggle-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2a2f3e; background: #0f1117; color: #6b7280; font-size: 14px; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .toggle-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2a2f3e; background: #0f1117; color: #6b7280; font-size: 14px; cursor: pointer; text-align: center; }
     .toggle-btn.active-yes { background: #142d1f; border-color: #14532d; color: #4ade80; }
     .toggle-btn.active-no { background: #2d1515; border-color: #7f1d1d; color: #f87171; }
-    .conditional { display: none; margin-top: 10px; }
-    .conditional.visible { display: block; }
     .train-card { background: #0f1117; border: 1px solid #2a2f3e; border-radius: 10px; padding: 16px; margin-bottom: 12px; position: relative; }
     .train-number { font-size: 12px; color: #3b82f6; margin-bottom: 12px; font-weight: 500; }
-    .remove-train { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #6b7280; cursor: pointer; font-size: 18px; line-height: 1; }
+    .remove-btn { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #6b7280; cursor: pointer; font-size: 18px; line-height: 1; }
     .add-btn { width: 100%; padding: 10px; border-radius: 8px; border: 1px dashed #2a2f3e; background: transparent; color: #6b7280; font-size: 14px; cursor: pointer; margin-bottom: 8px; }
     .add-btn:hover { border-color: #3b82f6; color: #3b82f6; }
     .submit-btn { width: 100%; padding: 14px; border-radius: 10px; border: none; background: #1d4ed8; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; margin-top: 8px; font-family: 'Segoe UI', sans-serif; }
@@ -37,13 +35,17 @@
     .copy-btn { width: 100%; padding: 14px; border-radius: 10px; border: none; background: #059669; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; font-family: 'Segoe UI', sans-serif; }
     .copy-btn:hover { background: #047857; }
     .back-btn { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2a2f3e; background: transparent; color: #9ca3af; font-size: 14px; cursor: pointer; margin-top: 10px; font-family: 'Segoe UI', sans-serif; }
-    .checklist { display: flex; flex-direction: column; gap: 8px; }
-    .check-item { display: flex; align-items: center; gap: 10px; background: #0f1117; border: 1px solid #2a2f3e; border-radius: 8px; padding: 10px 12px; cursor: pointer; }
-    .check-item.checked { background: #142d1f; border-color: #14532d; }
-    .check-item span { font-size: 14px; color: #e8eaf0; flex: 1; }
-    .check-icon { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #2a2f3e; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
-    .check-item.checked .check-icon { background: #14532d; border-color: #4ade80; color: #4ade80; }
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pin-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; }
+    .pin-title { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+    .pin-subtitle { font-size: 13px; color: #6b7280; margin-bottom: 24px; text-align: center; }
+    .pin-input { width: 160px; text-align: center; font-size: 24px; letter-spacing: 8px; margin-bottom: 12px; }
+    .pin-btn { width: 160px; padding: 12px; border-radius: 10px; border: none; background: #1d4ed8; color: #fff; font-size: 15px; cursor: pointer; font-family: 'Segoe UI', sans-serif; }
+    .pin-error { color: #f87171; font-size: 13px; margin-top: 8px; }
+    .staff-card { background: #0f1117; border: 1px solid #2a2f3e; border-radius: 10px; padding: 12px; margin-bottom: 8px; position: relative; }
+    .staff-status { display: flex; gap: 8px; margin-top: 8px; }
+    .status-btn { flex: 1; padding: 7px; border-radius: 6px; border: 1px solid #2a2f3e; background: #0f1117; color: #6b7280; font-size: 13px; cursor: pointer; text-align: center; }
+    .status-btn.on-time { background: #142d1f; border-color: #14532d; color: #4ade80; }
+    .status-btn.late { background: #2d1515; border-color: #7f1d1d; color: #f87171; }
     .cleaning-types { display: flex; flex-direction: column; gap: 6px; }
     .type-btn { padding: 8px 12px; border-radius: 6px; border: 1px solid #2a2f3e; background: #0f1117; color: #6b7280; font-size: 13px; cursor: pointer; text-align: left; }
     .type-btn.active { background: #1a2744; border-color: #1d4ed8; color: #60a5fa; }
@@ -56,28 +58,81 @@
 <div class="container">
   <h1>Shift Reporter</h1>
   <p class="subtitle">Churchill Cleaning · Hitachi Depot Edinburgh</p>
-
-  <div id="mode-select">
-    <div class="mode-selector">
-      <div class="mode-btn" onclick="setMode('sos')">Start of Shift</div>
-      <div class="mode-btn" onclick="setMode('eos')">End of Shift</div>
+  <div id="pin-screen"></div>
+  <div id="main-app" style="display:none">
+    <div id="mode-select">
+      <div class="mode-selector">
+        <div class="mode-btn" onclick="setMode('sos')">Start of Shift</div>
+        <div class="mode-btn" onclick="setMode('eos')">End of Shift</div>
+      </div>
     </div>
+    <div id="sos-form" style="display:none"></div>
+    <div id="eos-form" style="display:none"></div>
+    <div id="output" style="display:none"></div>
   </div>
-
-  <div id="sos-form" style="display:none"></div>
-  <div id="eos-form" style="display:none"></div>
-  <div id="output" style="display:none"></div>
 </div>
+
 <script>
-  const STAFF = ['John', 'Ben', 'Mariusz', 'Renata'] // will be replaced with live data later
-  const TRAIN_TYPES = ['Azuma', 'Lumo', 'TP', 'Voyager']
-  const CLEANING_TYPES = ['PHC', 'Daily', 'Other']
+  // ─── PIN MANAGEMENT ───────────────────────────────────────────────────────
+  // Each entry: { pin, name, isManager }
+  // isManager = true means extra supervisor field appears
+  let USERS = JSON.parse(localStorage.getItem('shift-reporter-users') || 'null') || [
+    { pin: '1001', name: 'Supervisor 1', isManager: false },
+    { pin: '1002', name: 'Supervisor 2', isManager: false },
+    { pin: '1003', name: 'Supervisor 3', isManager: false },
+    { pin: '1004', name: 'Supervisor 4', isManager: false },
+    { pin: '1005', name: 'Supervisor 5', isManager: false },
+    { pin: '1006', name: 'Supervisor 6', isManager: false },
+    { pin: '1007', name: 'Supervisor 7', isManager: false },
+    { pin: '9999', name: 'Ben', isManager: true },
+  ]
+
+  function saveUsers() {
+    localStorage.setItem('shift-reporter-users', JSON.stringify(USERS))
+  }
+
+  let currentUser = null
   let currentMode = ''
   let sosTrains = []
   let eosTrains = []
+  let sosStaff = []
 
+  const TRAIN_TYPES = ['Azuma', 'Lumo', 'TP', 'Voyager']
+  const CLEANING_TYPES = ['PHC', 'Daily', 'Other']
+
+  // ─── PIN SCREEN ───────────────────────────────────────────────────────────
+  function renderPinScreen() {
+    document.getElementById('pin-screen').innerHTML = `
+      <div class="pin-screen">
+        <div class="pin-title">Welcome</div>
+        <div class="pin-subtitle">Enter your PIN to access<br>the Shift Reporter</div>
+        <input class="pin-input" type="password" inputmode="numeric" maxlength="6" id="pin-input"
+          onkeydown="if(event.key==='Enter') checkPin()" placeholder="----" />
+        <button class="pin-btn" onclick="checkPin()">Enter</button>
+        <div class="pin-error" id="pin-error" style="display:none">Entered PIN is incorrect!</div>
+      </div>
+    `
+  }
+
+  function checkPin() {
+    const entered = document.getElementById('pin-input').value.trim()
+    const user = USERS.find(u => u.pin === entered)
+    if (user) {
+      currentUser = user
+      document.getElementById('pin-screen').style.display = 'none'
+      document.getElementById('main-app').style.display = 'block'
+    } else {
+      document.getElementById('pin-error').style.display = 'block'
+      document.getElementById('pin-input').value = ''
+    }
+  }
+
+  // ─── MODE ─────────────────────────────────────────────────────────────────
   function setMode(mode) {
     currentMode = mode
+    sosTrains = []
+    eosTrains = []
+    sosStaff = []
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'))
     event.target.classList.add('active')
     document.getElementById('sos-form').style.display = mode === 'sos' ? 'block' : 'none'
@@ -87,10 +142,10 @@
     if (mode === 'eos') renderEOS()
   }
 
-  function toggle(id, isYes, conditionalId) {
-    const btns = document.querySelectorAll(`[data-group="${id}"]`)
-    btns.forEach(b => { b.classList.remove('active-yes', 'active-no') })
-    event.target.classList.add(isYes ? 'active-yes' : 'active-no')
+  // ─── TOGGLE YES/NO ────────────────────────────────────────────────────────
+  function toggle(el, id, isYes, conditionalId) {
+    document.querySelectorAll(`[data-group="${id}"]`).forEach(b => b.classList.remove('active-yes', 'active-no'))
+    el.classList.add(isYes ? 'active-yes' : 'active-no')
     if (conditionalId) {
       document.getElementById(conditionalId).classList.toggle('visible', !isYes)
     }
@@ -98,115 +153,233 @@
 
   function getToggle(id) {
     const active = document.querySelector(`[data-group="${id}"].active-yes, [data-group="${id}"].active-no`)
-    if (!active) return null
+    if (!active) return '-'
     return active.classList.contains('active-yes') ? 'Yes' : 'No'
   }
 
-  function toggleCheck(el) {
-    el.classList.toggle('checked')
+  function yesNoField(id, labelText) {
+    return `<div class="field">
+      <label>${labelText}</label>
+      <div class="toggle-row">
+        <div class="toggle-btn" data-group="${id}" onclick="toggle(this,'${id}',true,null)">Yes</div>
+        <div class="toggle-btn" data-group="${id}" onclick="toggle(this,'${id}',false,null)">No</div>
+      </div>
+    </div>`
   }
 
-  function getChecked(containerId) {
-    return Array.from(document.querySelectorAll(`#${containerId} .check-item.checked span`)).map(s => s.textContent)
+  // ─── STAFF ────────────────────────────────────────────────────────────────
+  function addSOSStaff() {
+    sosStaff.push({ name: '', status: 'on-time' })
+    renderSOS()
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.staff-name-input')
+      if (inputs.length) inputs[inputs.length - 1].focus()
+    }, 50)
   }
 
+  function removeSOSStaff(i) {
+    saveAllStaff()
+    sosStaff.splice(i, 1)
+    renderSOS()
+  }
+
+  function saveAllStaff() {
+    sosStaff.forEach((_, i) => {
+      const nameEl = document.getElementById(`staff-name-${i}`)
+      if (nameEl) sosStaff[i].name = nameEl.value
+    })
+  }
+
+  function setStaffStatus(i, status) {
+    saveAllStaff()
+    sosStaff[i].status = status
+    const card = document.getElementById(`staff-card-${i}`)
+    card.querySelectorAll('.status-btn').forEach(b => b.classList.remove('on-time', 'late'))
+    card.querySelector(`[data-status="${status}"]`).classList.add(status)
+  }
+
+  function staffCardHTML(s, i) {
+    return `<div class="staff-card" id="staff-card-${i}">
+      <button class="remove-btn" onclick="removeSOSStaff(${i})">×</button>
+      <label style="font-size:12px;color:#6b7280;margin-bottom:4px;display:block">Staff Member ${i + 1}</label>
+      <input class="staff-name-input" type="text" id="staff-name-${i}" value="${s.name}" placeholder="Full name" />
+      <div class="staff-status">
+        <div class="status-btn ${s.status === 'on-time' ? 'on-time' : ''}" data-status="on-time"
+          onclick="setStaffStatus(${i}, 'on-time')">On Time</div>
+        <div class="status-btn ${s.status === 'late' ? 'late' : ''}" data-status="late"
+          onclick="setStaffStatus(${i}, 'late')">Late</div>
+      </div>
+    </div>`
+  }
+
+  // ─── TRAINS ───────────────────────────────────────────────────────────────
   function addSOSTrain() {
+    saveAllSOS()
     sosTrains.push({ type: 'Azuma', id: '', cleaning: 'PHC', internal: false, external: false, eta: '', required: '', departure: '' })
     renderSOS()
   }
 
   function removeSOSTrain(i) {
+    saveAllSOS()
     sosTrains.splice(i, 1)
     renderSOS()
   }
 
   function addEOSTrain() {
+    saveAllEOS()
     eosTrains.push({ type: 'Azuma', id: '', cleaning: 'PHC', internal: false, external: false, start: '', end: '', earlyLeave: '' })
     renderEOS()
   }
 
   function removeEOSTrain(i) {
+    saveAllEOS()
     eosTrains.splice(i, 1)
     renderEOS()
   }
 
-  function saveSOSTrain(i) {
-    sosTrains[i] = {
-      type: document.getElementById(`sos-train-type-${i}`).value,
-      id: document.getElementById(`sos-train-id-${i}`).value,
-      cleaning: document.querySelector(`[data-sos-cleaning="${i}"].active`)?.dataset.val || 'PHC',
-      internal: document.getElementById(`sos-internal-${i}`)?.classList.contains('active') || false,
-      external: document.getElementById(`sos-external-${i}`)?.classList.contains('active') || false,
-      eta: document.getElementById(`sos-eta-${i}`).value,
-      required: document.getElementById(`sos-required-${i}`).value,
-      departure: document.getElementById(`sos-departure-${i}`).value,
-    }
+  function saveAllSOS() {
+    saveAllStaff()
+    sosTrains.forEach((_, i) => {
+      const type = document.getElementById(`sos-train-type-${i}`)
+      const id = document.getElementById(`sos-train-id-${i}`)
+      const eta = document.getElementById(`sos-eta-${i}`)
+      const required = document.getElementById(`sos-required-${i}`)
+      const departure = document.getElementById(`sos-departure-${i}`)
+      const cleaning = document.querySelector(`[data-sos-cleaning="${i}"].active`)
+      const internal = document.getElementById(`sos-internal-${i}`)
+      const external = document.getElementById(`sos-external-${i}`)
+      if (type) sosTrains[i].type = type.value
+      if (id) sosTrains[i].id = id.value
+      if (eta) sosTrains[i].eta = eta.value
+      if (required) sosTrains[i].required = required.value
+      if (departure) sosTrains[i].departure = departure.value
+      if (cleaning) sosTrains[i].cleaning = cleaning.dataset.val
+      if (internal) sosTrains[i].internal = internal.classList.contains('active')
+      if (external) sosTrains[i].external = external.classList.contains('active')
+    })
   }
 
-  function saveEOSTrain(i) {
-    eosTrains[i] = {
-      type: document.getElementById(`eos-train-type-${i}`).value,
-      id: document.getElementById(`eos-train-id-${i}`).value,
-      cleaning: document.querySelector(`[data-eos-cleaning="${i}"].active`)?.dataset.val || 'PHC',
-      internal: document.getElementById(`eos-internal-${i}`)?.classList.contains('active') || false,
-      external: document.getElementById(`eos-external-${i}`)?.classList.contains('active') || false,
-      start: document.getElementById(`eos-start-${i}`).value,
-      end: document.getElementById(`eos-end-${i}`).value,
-      earlyLeave: document.getElementById(`eos-early-${i}`).value,
-    }
+  function saveAllEOS() {
+    eosTrains.forEach((_, i) => {
+      const type = document.getElementById(`eos-train-type-${i}`)
+      const id = document.getElementById(`eos-train-id-${i}`)
+      const start = document.getElementById(`eos-start-${i}`)
+      const end = document.getElementById(`eos-end-${i}`)
+      const early = document.getElementById(`eos-early-${i}`)
+      const cleaning = document.querySelector(`[data-eos-cleaning="${i}"].active`)
+      const internal = document.getElementById(`eos-internal-${i}`)
+      const external = document.getElementById(`eos-external-${i}`)
+      if (type) eosTrains[i].type = type.value
+      if (id) eosTrains[i].id = id.value
+      if (start) eosTrains[i].start = start.value
+      if (end) eosTrains[i].end = end.value
+      if (early) eosTrains[i].earlyLeave = early.value
+      if (cleaning) eosTrains[i].cleaning = cleaning.dataset.val
+      if (internal) eosTrains[i].internal = internal.classList.contains('active')
+      if (external) eosTrains[i].external = external.classList.contains('active')
+    })
   }
 
   function trainTypeOptions(selected) {
     return TRAIN_TYPES.map(t => `<option ${t === selected ? 'selected' : ''}>${t}</option>`).join('')
   }
 
-  function cleaningTypeBtns(prefix, i, selected) {
+  function cleaningBtns(prefix, i, selected) {
     return CLEANING_TYPES.map(t => `
       <button class="type-btn ${t === selected ? 'active' : ''}" data-${prefix}-cleaning="${i}" data-val="${t}"
-        onclick="this.closest('.train-card').querySelectorAll('[data-${prefix}-cleaning]').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('${prefix}-phc-${i}').style.display=this.dataset.val==='PHC'?'grid':'none'">
+        onclick="this.closest('.train-card').querySelectorAll('[data-${prefix}-cleaning=\\'${i}\\']').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('${prefix}-phc-${i}').style.display=this.dataset.val==='PHC'?'grid':'none'">
         ${t}
       </button>`).join('')
   }
 
-  function staffChecklist(containerId) {
-    return `<div class="checklist" id="${containerId}">
-      ${STAFF.map(s => `<div class="check-item" onclick="toggleCheck(this)">
-        <div class="check-icon">✓</div>
-        <span>${s}</span>
-      </div>`).join('')}
+  function sosTrainCard(t, i) {
+    return `<div class="train-card">
+      <div class="train-number">Train ${i + 1}</div>
+      <button class="remove-btn" onclick="removeSOSTrain(${i})">×</button>
+      <div class="field"><label>Type</label>
+        <select id="sos-train-type-${i}">${trainTypeOptions(t.type)}</select>
+      </div>
+      <div class="field"><label>Train ID</label>
+        <input type="text" id="sos-train-id-${i}" value="${t.id}" placeholder="e.g. 801202" />
+      </div>
+      <div class="field"><label>Cleaning Type</label>
+        <div class="cleaning-types">${cleaningBtns('sos', i, t.cleaning)}</div>
+        <div class="phc-options" id="sos-phc-${i}" style="display:${t.cleaning === 'PHC' ? 'grid' : 'none'}">
+          <button class="phc-btn ${t.internal ? 'active' : ''}" id="sos-internal-${i}" onclick="this.classList.toggle('active')">Internal</button>
+          <button class="phc-btn ${t.external ? 'active' : ''}" id="sos-external-${i}" onclick="this.classList.toggle('active')">External</button>
+        </div>
+      </div>
+      <div class="field"><label>ETA</label><input type="time" id="sos-eta-${i}" value="${t.eta}" style="width:140px" /></div>
+      <div class="field"><label>Required Back</label><input type="time" id="sos-required-${i}" value="${t.required}" style="width:140px" /></div>
+      <div class="field"><label>Departure</label><input type="time" id="sos-departure-${i}" value="${t.departure}" style="width:140px" /></div>
     </div>`
   }
 
+  function eosTrainCard(t, i) {
+    return `<div class="train-card">
+      <div class="train-number">Train ${i + 1}</div>
+      <button class="remove-btn" onclick="removeEOSTrain(${i})">×</button>
+      <div class="field"><label>Type</label>
+        <select id="eos-train-type-${i}">${trainTypeOptions(t.type)}</select>
+      </div>
+      <div class="field"><label>Train ID</label>
+        <input type="text" id="eos-train-id-${i}" value="${t.id}" placeholder="e.g. 801202" />
+      </div>
+      <div class="field"><label>Cleaning Type</label>
+        <div class="cleaning-types">${cleaningBtns('eos', i, t.cleaning)}</div>
+        <div class="phc-options" id="eos-phc-${i}" style="display:${t.cleaning === 'PHC' ? 'grid' : 'none'}">
+          <button class="phc-btn ${t.internal ? 'active' : ''}" id="eos-internal-${i}" onclick="this.classList.toggle('active')">Internal</button>
+          <button class="phc-btn ${t.external ? 'active' : ''}" id="eos-external-${i}" onclick="this.classList.toggle('active')">External</button>
+        </div>
+      </div>
+      <div class="field"><label>Start of Cleaning</label><input type="time" id="eos-start-${i}" value="${t.start}" style="width:140px" /></div>
+      <div class="field"><label>End of Cleaning</label><input type="time" id="eos-end-${i}" value="${t.end}" style="width:140px" /></div>
+      <div class="field"><label>Staff Leaving Early</label>
+        <input type="text" id="eos-early-${i}" value="${t.earlyLeave}" placeholder="Names and reason..." />
+      </div>
+    </div>`
+  }
+
+  // ─── RENDER FORMS ─────────────────────────────────────────────────────────
   function renderSOS() {
     const today = new Date().toISOString().split('T')[0]
+    const managerField = currentUser.isManager ? `
+      <div class="field"><label>Supervisor on Shift</label>
+        <input type="text" id="sos-supervisor-override" placeholder="Supervisor name" />
+      </div>` : ''
+
     document.getElementById('sos-form').innerHTML = `
       <div class="card">
         <div class="section-title">Shift Info</div>
         <div class="field"><label>Date</label><input type="date" id="sos-date" value="${today}" /></div>
         <div class="field"><label>Shift</label>
-          <select id="sos-shift"><option>Night</option><option>Day</option></select>
+          <select id="sos-shift"><option>Day</option><option>Night</option></select>
         </div>
-        <div class="field"><label>Depot Manager on shift</label><input type="text" id="sos-dm" placeholder="Full name" /></div>
-        <div class="field"><label>Supervisor on shift</label><input type="text" id="sos-supervisor" placeholder="Full name" /></div>
+        <div class="field"><label>Depot Manager on Shift</label>
+          <input type="text" id="sos-dm" placeholder="Full name" />
+        </div>
+        ${managerField}
       </div>
 
       <div class="card">
         <div class="section-title">Staff</div>
-        <div class="field"><label>Headcount</label><input type="number" id="sos-headcount" placeholder="0" /></div>
-        <div class="field"><label>Names of staff on shift</label>${staffChecklist('sos-staff')}</div>
+        <div class="field"><label>Staff Headcount</label>
+          <input type="number" id="sos-headcount" placeholder="0" style="width:100px" />
+        </div>
+        <div class="field"><label>Staff on Shift</label>
+          <div id="sos-staff-list">
+            ${sosStaff.map((s, i) => staffCardHTML(s, i)).join('')}
+          </div>
+          <button class="add-btn" onclick="saveAllSOS();addSOSStaff()">+ Add Staff Member</button>
+        </div>
       </div>
 
       <div class="card">
         <div class="section-title">Checks</div>
-        ${yesNoField('sos-planner', 'Picture of planner sent', null)}
-        ${yesNoField('sos-ontime', 'All staff on time', 'sos-late-box')}
-        <div class="conditional" id="sos-late-box">
-          <div class="field"><label>Who was late</label><input type="text" id="sos-late" placeholder="Names..." /></div>
-        </div>
-        ${yesNoField('sos-fire', 'All staff signed in on Fire register / Reception', null)}
-        ${yesNoField('sos-tracker', 'Churchill shift tracker signed', null)}
-        ${yesNoField('sos-ppe', 'All staff in full PPE & inspected', null)}
-        ${yesNoField('sos-storage', 'Storage unit & equipment in good order', null)}
+        ${yesNoField('sos-fire', 'All Staff Clocked In — Fire Register')}
+        ${yesNoField('sos-tracker', 'All Staff Clocked In — Churchill System')}
+        ${yesNoField('sos-ppe', 'All Staff in Full PPE & Inspected')}
+        ${yesNoField('sos-storage', 'Storage Unit & Equipment in Good Order')}
       </div>
 
       <div class="card">
@@ -214,7 +387,7 @@
         <div id="sos-trains">
           ${sosTrains.map((t, i) => sosTrainCard(t, i)).join('')}
         </div>
-        <button class="add-btn" onclick="saveAllSOS();addSOSTrain()">+ Add Train</button>
+        <button class="add-btn" onclick="addSOSTrain()">+ Add Train</button>
       </div>
 
       <button class="submit-btn" onclick="saveAllSOS();generateSOS()">Generate Report</button>
@@ -223,13 +396,19 @@
 
   function renderEOS() {
     const today = new Date().toISOString().split('T')[0]
+    const managerField = currentUser.isManager ? `
+      <div class="field"><label>Supervisor on Shift</label>
+        <input type="text" id="eos-supervisor-override" placeholder="Supervisor name" />
+      </div>` : ''
+
     document.getElementById('eos-form').innerHTML = `
       <div class="card">
         <div class="section-title">Shift Info</div>
         <div class="field"><label>Date</label><input type="date" id="eos-date" value="${today}" /></div>
         <div class="field"><label>Shift</label>
-          <select id="eos-shift"><option>Night</option><option>Day</option></select>
+          <select id="eos-shift"><option>Day</option><option>Night</option></select>
         </div>
+        ${managerField}
       </div>
 
       <div class="card">
@@ -237,175 +416,123 @@
         <div id="eos-trains">
           ${eosTrains.map((t, i) => eosTrainCard(t, i)).join('')}
         </div>
-        <button class="add-btn" onclick="saveAllEOS();addEOSTrain()">+ Add Train</button>
+        <button class="add-btn" onclick="addEOSTrain()">+ Add Train</button>
       </div>
 
       <div class="card">
         <div class="section-title">End of Shift Checks</div>
-        ${yesNoField('eos-hitachi', 'Hitachi presentation check', null)}
-        ${yesNoField('eos-docs', 'Documents signed', null)}
-        <div class="field"><label>End of shift time</label><input type="time" id="eos-endtime" /></div>
-        <div class="field"><label>Additional notes</label><textarea id="eos-notes" rows="3" placeholder="Challenges, equipment, morale..."></textarea></div>
+        ${yesNoField('eos-hitachi', 'Hitachi Presentation Check')}
+        ${yesNoField('eos-docs', 'Documents Signed')}
+        <div class="field"><label>End of Shift Time</label>
+          <input type="time" id="eos-endtime" style="width:140px" />
+        </div>
+        <div class="field"><label>Notes</label>
+          <textarea id="eos-notes" rows="4" placeholder="e.g. equipment faults, supply shortages, train access delays, staff performance, safety incidents"></textarea>
+        </div>
       </div>
 
       <button class="submit-btn" onclick="saveAllEOS();generateEOS()">Generate Report</button>
     `
   }
 
-  function yesNoField(id, labelText, conditionalId) {
-    return `<div class="field">
-      <label>${labelText}</label>
-      <div class="toggle-row">
-        <div class="toggle-btn" data-group="${id}" onclick="toggle('${id}', true, '${conditionalId}')">Yes</div>
-        <div class="toggle-btn" data-group="${id}" onclick="toggle('${id}', false, '${conditionalId}')">No</div>
-      </div>
-      ${conditionalId ? `<div class="conditional" id="${conditionalId}"></div>` : ''}
-    </div>`
-  }
-
-  function sosTrainCard(t, i) {
-    return `<div class="train-card">
-      <div class="train-number">Train ${i + 1}</div>
-      <button class="remove-train" onclick="saveAllSOS();removeSOSTrain(${i})">×</button>
-      <div class="grid2">
-        <div class="field"><label>Type</label>
-          <select id="sos-train-type-${i}">${trainTypeOptions(t.type)}</select>
-        </div>
-        <div class="field"><label>Train ID</label>
-          <input type="text" id="sos-train-id-${i}" value="${t.id}" placeholder="e.g. 801202" />
-        </div>
-      </div>
-      <div class="field"><label>Cleaning Type</label>
-        <div class="cleaning-types">${cleaningTypeBtns('sos', i, t.cleaning)}</div>
-        <div class="phc-options" id="sos-phc-${i}" style="display:${t.cleaning === 'PHC' ? 'grid' : 'none'}">
-          <button class="phc-btn ${t.internal ? 'active' : ''}" id="sos-internal-${i}" onclick="this.classList.toggle('active')">Internal</button>
-          <button class="phc-btn ${t.external ? 'active' : ''}" id="sos-external-${i}" onclick="this.classList.toggle('active')">External</button>
-        </div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>ETA</label><input type="time" id="sos-eta-${i}" value="${t.eta}" /></div>
-        <div class="field"><label>Required back</label><input type="time" id="sos-required-${i}" value="${t.required}" /></div>
-      </div>
-      <div class="field"><label>Departure</label><input type="time" id="sos-departure-${i}" value="${t.departure}" /></div>
-    </div>`
-  }
-
-  function eosTrainCard(t, i) {
-    return `<div class="train-card">
-      <div class="train-number">Train ${i + 1}</div>
-      <button class="remove-train" onclick="saveAllEOS();removeEOSTrain(${i})">×</button>
-      <div class="grid2">
-        <div class="field"><label>Type</label>
-          <select id="eos-train-type-${i}">${trainTypeOptions(t.type)}</select>
-        </div>
-        <div class="field"><label>Train ID</label>
-          <input type="text" id="eos-train-id-${i}" value="${t.id}" placeholder="e.g. 801202" />
-        </div>
-      </div>
-      <div class="field"><label>Cleaning Type</label>
-        <div class="cleaning-types">${cleaningTypeBtns('eos', i, t.cleaning)}</div>
-        <div class="phc-options" id="eos-phc-${i}" style="display:${t.cleaning === 'PHC' ? 'grid' : 'none'}">
-          <button class="phc-btn ${t.internal ? 'active' : ''}" id="eos-internal-${i}" onclick="this.classList.toggle('active')">Internal</button>
-          <button class="phc-btn ${t.external ? 'active' : ''}" id="eos-external-${i}" onclick="this.classList.toggle('active')">External</button>
-        </div>
-      </div>
-      <div class="grid2">
-        <div class="field"><label>Start of cleaning</label><input type="time" id="eos-start-${i}" value="${t.start}" /></div>
-        <div class="field"><label>End of cleaning</label><input type="time" id="eos-end-${i}" value="${t.end}" /></div>
-      </div>
-      <div class="field"><label>Staff leaving early (if any)</label><input type="text" id="eos-early-${i}" value="${t.earlyLeave}" placeholder="Names and reason..." /></div>
-    </div>`
-  }
-
-  function saveAllSOS() {
-    sosTrains.forEach((_, i) => saveSOSTrain(i))
-  }
-
-  function saveAllEOS() {
-    eosTrains.forEach((_, i) => saveEOSTrain(i))
-  }
+  // ─── GENERATE REPORTS ─────────────────────────────────────────────────────
   function generateSOS() {
-    const date = document.getElementById('sos-date').value
+    const date = document.getElementById('sos-date').value.split('-').reverse().join('/')
     const shift = document.getElementById('sos-shift').value
     const dm = document.getElementById('sos-dm').value
-    const supervisor = document.getElementById('sos-supervisor').value
     const headcount = document.getElementById('sos-headcount').value
-    const staff = getChecked('sos-staff')
-    const late = document.getElementById('sos-late')?.value || ''
+    const supervisorName = currentUser.isManager
+      ? (document.getElementById('sos-supervisor-override')?.value || currentUser.name)
+      : currentUser.name
 
-    const planner = getToggle('sos-planner') || '-'
-    const ontime = getToggle('sos-ontime') || '-'
-    const fire = getToggle('sos-fire') || '-'
-    const tracker = getToggle('sos-tracker') || '-'
-    const ppe = getToggle('sos-ppe') || '-'
-    const storage = getToggle('sos-storage') || '-'
+    const onTime = sosStaff.filter(s => s.status === 'on-time' && s.name).map(s => s.name)
+    const late = sosStaff.filter(s => s.status === 'late' && s.name).map(s => s.name)
+
+    const fire = getToggle('sos-fire')
+    const tracker = getToggle('sos-tracker')
+    const ppe = getToggle('sos-ppe')
+    const storage = getToggle('sos-storage')
 
     let trainText = ''
-    sosTrains.forEach((t, i) => {
+    sosTrains.forEach(t => {
       const cleaning = t.cleaning === 'PHC'
         ? `PHC${t.internal && t.external ? ' FULL' : t.internal ? ' INTERNAL' : t.external ? ' EXTERNAL' : ''}`
         : t.cleaning
-      trainText += `\nClean requested:\n${t.type.toUpperCase()} ${t.id} ${cleaning}\nETA: ${t.eta}\nRequired back: ${t.required}\nDeparture: ${t.departure}\n`
+      trainText += `
+Clean Requested:
+${t.type.toUpperCase()} ${t.id} ${cleaning}
+ETA:                    ${t.eta}
+Required Back:   ${t.required}
+Departure:          ${t.departure}
+`
     })
+
+    const staffList = sosStaff.filter(s => s.name).map((s, i) => `${i + 1}. ${s.name}${s.status === 'late' ? ' (Late)' : ''}`).join('\n')
 
     const report = `Start of Shift Report:
 
-Date: ${date.split('-').reverse().join('/')}
+Date: ${date}
 Shift: ${shift}
-Depot Manager on shift:
+Depot Manager on Shift:
 ${dm}
 
-Picture of planner sent: ${planner}
-All staff on time: ${ontime}${ontime === 'No' && late ? `\nWho was late: ${late}` : ''}
-
-Supervisor on shift:
-${supervisor}
-Headcount of staff on shift: ${headcount}
-Names of staff on shift:
-${staff.map((s, i) => `${i + 1}. ${s}`).join('\n')}
-
-All staff signed in on
-Fire register/Reception: ${fire}
-Churchill shift tracker: ${tracker}
-All staff in full PPE & Inspected: ${ppe}
-Storage unit & equipment received in good order: ${storage}
+Supervisor on Shift:
+${supervisorName}
+Staff Headcount: ${headcount}
+Staff on Shift:
+${staffList}
+${late.length ? `\nLate: ${late.join(', ')}` : ''}
+All Staff Clocked In — Fire Register: ${fire}
+All Staff Clocked In — Churchill System: ${tracker}
+All Staff in Full PPE & Inspected: ${ppe}
+Storage Unit & Equipment in Good Order: ${storage}
 ${trainText}`
 
     showOutput(report)
   }
 
   function generateEOS() {
-    const date = document.getElementById('eos-date').value
+    const date = document.getElementById('eos-date').value.split('-').reverse().join('/')
     const shift = document.getElementById('eos-shift').value
-    const hitachi = getToggle('eos-hitachi') || '-'
-    const docs = getToggle('eos-docs') || '-'
+    const hitachi = getToggle('eos-hitachi')
+    const docs = getToggle('eos-docs')
     const endtime = document.getElementById('eos-endtime').value
     const notes = document.getElementById('eos-notes').value
+    const supervisorName = currentUser.isManager
+      ? (document.getElementById('eos-supervisor-override')?.value || currentUser.name)
+      : currentUser.name
 
     let trainText = ''
     eosTrains.forEach(t => {
       const cleaning = t.cleaning === 'PHC'
         ? `PHC${t.internal && t.external ? ' FULL' : t.internal ? ' INTERNAL' : t.external ? ' EXTERNAL' : ''}`
         : t.cleaning
-      trainText += `\nTrain number: ${t.type.toUpperCase()} ${t.id}\nType of cleaning: ${cleaning}\nStart of cleaning: ${t.start}\nEnd of cleaning: ${t.end}${t.earlyLeave ? `\nStaff leaving early: ${t.earlyLeave}` : ''}\n`
+      trainText += `
+Train Number: ${t.type.toUpperCase()} ${t.id}
+Type of Cleaning: ${cleaning}
+Start of Cleaning: ${t.start}
+End of Cleaning: ${t.end}${t.earlyLeave ? `\nStaff Leaving Early: ${t.earlyLeave}` : ''}
+`
     })
 
     const report = `End of Shift Report:
 
-Date: ${date.split('-').reverse().join('/')}
+Date: ${date}
 Shift: ${shift}
+Supervisor on Shift: ${supervisorName}
 ${trainText}
-Hitachi presentation check: ${hitachi}
-Documents signed: ${docs}
+Hitachi Presentation Check: ${hitachi}
+Documents Signed: ${docs}
 
-Additional notes:
+Notes:
 ${notes || 'None'}
 
-End of shift: ${endtime}`
+End of Shift: ${endtime}`
 
     showOutput(report)
   }
 
+  // ─── OUTPUT ───────────────────────────────────────────────────────────────
   function showOutput(report) {
     document.getElementById('sos-form').style.display = 'none'
     document.getElementById('eos-form').style.display = 'none'
@@ -413,7 +540,7 @@ End of shift: ${endtime}`
     document.getElementById('output').innerHTML = `
       <div class="card">
         <div class="section-title">Generated Report</div>
-        <div class="output-box" id="report-text">${report}</div>
+        <div class="output-box">${report.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
         <button class="copy-btn" onclick="copyReport()">Copy to Clipboard</button>
         <button class="back-btn" onclick="goBack()">Back to Form</button>
       </div>
@@ -435,6 +562,9 @@ End of shift: ${endtime}`
     document.getElementById('sos-form').style.display = currentMode === 'sos' ? 'block' : 'none'
     document.getElementById('eos-form').style.display = currentMode === 'eos' ? 'block' : 'none'
   }
+
+  // ─── INIT ─────────────────────────────────────────────────────────────────
+  renderPinScreen()
 </script>
 </body>
 </html>
