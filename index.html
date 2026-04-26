@@ -163,18 +163,20 @@
 
   function addSOSStaff() {
     saveAllStaff()
+    const i = sosStaff.length
     sosStaff.push({ name: '', status: 'on-time' })
-    renderSOS()
-    setTimeout(() => {
-      const inputs = document.querySelectorAll('.staff-name-input')
-      if (inputs.length) inputs[inputs.length - 1].focus()
-    }, 50)
+    const list = document.getElementById('sos-staff-list')
+    const div = document.createElement('div')
+    div.innerHTML = staffCardHTML({ name: '', status: 'on-time' }, i)
+    list.appendChild(div.firstChild)
+    list.querySelectorAll('.staff-name-input')[i]?.focus()
   }
 
   function removeSOSStaff(i) {
     saveAllStaff()
     sosStaff.splice(i, 1)
-    renderSOS()
+    const list = document.getElementById('sos-staff-list')
+    list.innerHTML = sosStaff.map((s, idx) => staffCardHTML(s, idx)).join('')
   }
 
   function saveAllStaff() {
@@ -208,18 +210,19 @@
 
   function addEarlyStaff() {
     saveAllEarlyStaff()
+    const i = eosEarlyStaff.length
     eosEarlyStaff.push({ name: '', reason: '' })
-    renderEOS()
-    setTimeout(() => {
-      const inputs = document.querySelectorAll('.early-name-input')
-      if (inputs.length) inputs[inputs.length - 1].focus()
-    }, 50)
+    const list = document.getElementById('eos-early-list')
+    const div = document.createElement('div')
+    div.innerHTML = earlyStaffCardHTML({ name: '', reason: '' }, i)
+    list.appendChild(div.firstChild)
+    list.querySelectorAll('.early-name-input')[i]?.focus()
   }
 
   function removeEarlyStaff(i) {
     saveAllEarlyStaff()
     eosEarlyStaff.splice(i, 1)
-    renderEOS()
+    document.getElementById('eos-early-list').innerHTML = eosEarlyStaff.map((s, idx) => earlyStaffCardHTML(s, idx)).join('')
   }
 
   function saveAllEarlyStaff() {
@@ -245,26 +248,34 @@
 
   function addSOSTrain() {
     saveAllSOS()
+    const i = sosTrains.length
     sosTrains.push({ type: 'Azuma', id: '', cleaning: 'PHC', internal: false, external: false, eta: '', required: '', departure: '' })
-    renderSOS()
+    const container = document.getElementById('sos-trains')
+    const div = document.createElement('div')
+    div.innerHTML = sosTrainCard(sosTrains[i], i)
+    container.appendChild(div.firstChild)
   }
 
   function removeSOSTrain(i) {
     saveAllSOS()
     sosTrains.splice(i, 1)
-    renderSOS()
+    document.getElementById('sos-trains').innerHTML = sosTrains.map((t, idx) => sosTrainCard(t, idx)).join('')
   }
 
   function addEOSTrain() {
     saveAllEOS()
+    const i = eosTrains.length
     eosTrains.push({ type: 'Azuma', id: '', cleaning: 'PHC', internal: false, external: false, start: '', end: '' })
-    renderEOS()
+    const container = document.getElementById('eos-trains')
+    const div = document.createElement('div')
+    div.innerHTML = eosTrainCard(eosTrains[i], i)
+    container.appendChild(div.firstChild)
   }
 
   function removeEOSTrain(i) {
     saveAllEOS()
     eosTrains.splice(i, 1)
-    renderEOS()
+    document.getElementById('eos-trains').innerHTML = eosTrains.map((t, idx) => eosTrainCard(t, idx)).join('')
   }
 
   function saveAllSOS() {
