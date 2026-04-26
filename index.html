@@ -508,23 +508,7 @@ Departure:          ${t.departure}
 `
     })
 
-    const report = `Start of Shift Report:
-
-Date: ${date}
-Shift: ${shift}
-Depot Manager on Shift:
-${dm}
-
-Supervisor on Shift:
-${supervisorName}
-Staff Headcount: ${headcount}
-Staff on Shift:
-${staffList}
-All Staff Clocked In - Fire Register: ${fire}
-All Staff Clocked In - Churchill System: ${tracker}
-All Staff in Full PPE & Inspected: ${ppe}
-Storage Unit & Equipment in Good Order: ${storage}
-${trainText}`
+    const report = `Start of Shift Report:\n\nDate: ${date}\nShift: ${shift}\nDepot Manager on Shift:\n${dm}\nSupervisor on Shift:\n${supervisorName}\n\nStaff Headcount: ${headcount}\nStaff on Shift:\n${staffList}\n\nAll Staff Clocked In - Fire Register: ${fire}\nAll Staff Clocked In - Churchill System: ${tracker}\nAll Staff in Full PPE & Inspected: ${ppe}\nStorage Unit & Equipment in Good Order: ${storage}\n${trainText}`
 
     showOutput(report)
   }
