@@ -52,6 +52,7 @@
     .phc-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
     .phc-btn { padding: 8px; border-radius: 6px; border: 1px solid #2a2f3e; background: #0f1117; color: #6b7280; font-size: 13px; cursor: pointer; text-align: center; }
     .phc-btn.active { background: #1a2744; border-color: #1d4ed8; color: #60a5fa; }
+    .early-card { background: #0f1117; border: 1px solid #2a2f3e; border-radius: 10px; padding: 12px; margin-bottom: 8px; position: relative; }
   </style>
 </head>
 <body>
@@ -73,9 +74,6 @@
 </div>
 
 <script>
-  // ─── PIN MANAGEMENT ───────────────────────────────────────────────────────
-  // Each entry: { pin, name, isManager }
-  // isManager = true means extra supervisor field appears
   let USERS = JSON.parse(localStorage.getItem('shift-reporter-users') || 'null') || [
     { pin: '1001', name: 'Supervisor 1', isManager: false },
     { pin: '1002', name: 'Supervisor 2', isManager: false },
@@ -96,11 +94,11 @@
   let sosTrains = []
   let eosTrains = []
   let sosStaff = []
+  let eosEarlyStaff = []
 
   const TRAIN_TYPES = ['Azuma', 'Lumo', 'TP', 'Voyager']
   const CLEANING_TYPES = ['PHC', 'Daily', 'Other']
 
-  // ─── PIN SCREEN ───────────────────────────────────────────────────────────
   function renderPinScreen() {
     document.getElementById('pin-screen').innerHTML = `
       <div class="pin-screen">
@@ -127,12 +125,12 @@
     }
   }
 
-  // ─── MODE ─────────────────────────────────────────────────────────────────
   function setMode(mode) {
     currentMode = mode
     sosTrains = []
     eosTrains = []
     sosStaff = []
+    eosEarlyStaff = []
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'))
     event.target.classList.add('active')
     document.getElementById('sos-form').style.display = mode === 'sos' ? 'block' : 'none'
@@ -142,13 +140,9 @@
     if (mode === 'eos') renderEOS()
   }
 
-  // ─── TOGGLE YES/NO ────────────────────────────────────────────────────────
-  function toggle(el, id, isYes, conditionalId) {
+  function toggle(el, id, isYes) {
     document.querySelectorAll(`[data-group="${id}"]`).forEach(b => b.classList.remove('active-yes', 'active-no'))
     el.classList.add(isYes ? 'active-yes' : 'active-no')
-    if (conditionalId) {
-      document.getElementById(conditionalId).classList.toggle('visible', !isYes)
-    }
   }
 
   function getToggle(id) {
@@ -161,14 +155,14 @@
     return `<div class="field">
       <label>${labelText}</label>
       <div class="toggle-row">
-        <div class="toggle-btn" data-group="${id}" onclick="toggle(this,'${id}',true,null)">Yes</div>
-        <div class="toggle-btn" data-group="${id}" onclick="toggle(this,'${id}',false,null)">No</div>
+        <div class="toggle-btn" data-group="${id}" onclick="toggle(this,'${id}',true)">Yes</div>
+        <div class="toggle-btn" data-group="${id}" onclick="toggle(this,'${id}',false)">No</div>
       </div>
     </div>`
   }
 
-  // ─── STAFF ────────────────────────────────────────────────────────────────
   function addSOSStaff() {
+    saveAllStaff()
     sosStaff.push({ name: '', status: 'on-time' })
     renderSOS()
     setTimeout(() => {
@@ -185,8 +179,8 @@
 
   function saveAllStaff() {
     sosStaff.forEach((_, i) => {
-      const nameEl = document.getElementById(`staff-name-${i}`)
-      if (nameEl) sosStaff[i].name = nameEl.value
+      const el = document.getElementById(`staff-name-${i}`)
+      if (el) sosStaff[i].name = el.value
     })
   }
 
@@ -200,7 +194,7 @@
 
   function staffCardHTML(s, i) {
     return `<div class="staff-card" id="staff-card-${i}">
-      <button class="remove-btn" onclick="removeSOSStaff(${i})">×</button>
+      <button class="remove-btn" onclick="removeSOSStaff(${i})">x</button>
       <label style="font-size:12px;color:#6b7280;margin-bottom:4px;display:block">Staff Member ${i + 1}</label>
       <input class="staff-name-input" type="text" id="staff-name-${i}" value="${s.name}" placeholder="Full name" />
       <div class="staff-status">
@@ -212,7 +206,43 @@
     </div>`
   }
 
-  // ─── TRAINS ───────────────────────────────────────────────────────────────
+  function addEarlyStaff() {
+    saveAllEarlyStaff()
+    eosEarlyStaff.push({ name: '', reason: '' })
+    renderEOS()
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.early-name-input')
+      if (inputs.length) inputs[inputs.length - 1].focus()
+    }, 50)
+  }
+
+  function removeEarlyStaff(i) {
+    saveAllEarlyStaff()
+    eosEarlyStaff.splice(i, 1)
+    renderEOS()
+  }
+
+  function saveAllEarlyStaff() {
+    eosEarlyStaff.forEach((_, i) => {
+      const name = document.getElementById(`early-name-${i}`)
+      const reason = document.getElementById(`early-reason-${i}`)
+      if (name) eosEarlyStaff[i].name = name.value
+      if (reason) eosEarlyStaff[i].reason = reason.value
+    })
+  }
+
+  function earlyStaffCardHTML(s, i) {
+    return `<div class="early-card">
+      <button class="remove-btn" onclick="removeEarlyStaff(${i})">x</button>
+      <div class="field"><label>Name</label>
+        <input class="early-name-input" type="text" id="early-name-${i}" value="${s.name}" placeholder="Full name" />
+      </div>
+      <div class="field" style="margin-bottom:0"><label>Reason</label>
+        <input type="text" id="early-reason-${i}" value="${s.reason}" placeholder="Reason for leaving early" />
+      </div>
+    </div>`
+  }
+
   function addSOSTrain() {
     saveAllSOS()
     sosTrains.push({ type: 'Azuma', id: '', cleaning: 'PHC', internal: false, external: false, eta: '', required: '', departure: '' })
@@ -227,7 +257,7 @@
 
   function addEOSTrain() {
     saveAllEOS()
-    eosTrains.push({ type: 'Azuma', id: '', cleaning: 'PHC', internal: false, external: false, start: '', end: '', earlyLeave: '' })
+    eosTrains.push({ type: 'Azuma', id: '', cleaning: 'PHC', internal: false, external: false, start: '', end: '' })
     renderEOS()
   }
 
@@ -260,12 +290,12 @@
   }
 
   function saveAllEOS() {
+    saveAllEarlyStaff()
     eosTrains.forEach((_, i) => {
       const type = document.getElementById(`eos-train-type-${i}`)
       const id = document.getElementById(`eos-train-id-${i}`)
       const start = document.getElementById(`eos-start-${i}`)
       const end = document.getElementById(`eos-end-${i}`)
-      const early = document.getElementById(`eos-early-${i}`)
       const cleaning = document.querySelector(`[data-eos-cleaning="${i}"].active`)
       const internal = document.getElementById(`eos-internal-${i}`)
       const external = document.getElementById(`eos-external-${i}`)
@@ -273,7 +303,6 @@
       if (id) eosTrains[i].id = id.value
       if (start) eosTrains[i].start = start.value
       if (end) eosTrains[i].end = end.value
-      if (early) eosTrains[i].earlyLeave = early.value
       if (cleaning) eosTrains[i].cleaning = cleaning.dataset.val
       if (internal) eosTrains[i].internal = internal.classList.contains('active')
       if (external) eosTrains[i].external = external.classList.contains('active')
@@ -287,7 +316,7 @@
   function cleaningBtns(prefix, i, selected) {
     return CLEANING_TYPES.map(t => `
       <button class="type-btn ${t === selected ? 'active' : ''}" data-${prefix}-cleaning="${i}" data-val="${t}"
-        onclick="this.closest('.train-card').querySelectorAll('[data-${prefix}-cleaning=\\'${i}\\']').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('${prefix}-phc-${i}').style.display=this.dataset.val==='PHC'?'grid':'none'">
+        onclick="this.closest('.train-card').querySelectorAll('[data-${prefix}-cleaning]').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('${prefix}-phc-${i}').style.display=this.dataset.val==='PHC'?'grid':'none'">
         ${t}
       </button>`).join('')
   }
@@ -295,7 +324,7 @@
   function sosTrainCard(t, i) {
     return `<div class="train-card">
       <div class="train-number">Train ${i + 1}</div>
-      <button class="remove-btn" onclick="removeSOSTrain(${i})">×</button>
+      <button class="remove-btn" onclick="removeSOSTrain(${i})">x</button>
       <div class="field"><label>Type</label>
         <select id="sos-train-type-${i}">${trainTypeOptions(t.type)}</select>
       </div>
@@ -311,14 +340,14 @@
       </div>
       <div class="field"><label>ETA</label><input type="time" id="sos-eta-${i}" value="${t.eta}" style="width:140px" /></div>
       <div class="field"><label>Required Back</label><input type="time" id="sos-required-${i}" value="${t.required}" style="width:140px" /></div>
-      <div class="field"><label>Departure</label><input type="time" id="sos-departure-${i}" value="${t.departure}" style="width:140px" /></div>
+      <div class="field" style="margin-bottom:0"><label>Departure</label><input type="time" id="sos-departure-${i}" value="${t.departure}" style="width:140px" /></div>
     </div>`
   }
 
   function eosTrainCard(t, i) {
     return `<div class="train-card">
       <div class="train-number">Train ${i + 1}</div>
-      <button class="remove-btn" onclick="removeEOSTrain(${i})">×</button>
+      <button class="remove-btn" onclick="removeEOSTrain(${i})">x</button>
       <div class="field"><label>Type</label>
         <select id="eos-train-type-${i}">${trainTypeOptions(t.type)}</select>
       </div>
@@ -333,19 +362,15 @@
         </div>
       </div>
       <div class="field"><label>Start of Cleaning</label><input type="time" id="eos-start-${i}" value="${t.start}" style="width:140px" /></div>
-      <div class="field"><label>End of Cleaning</label><input type="time" id="eos-end-${i}" value="${t.end}" style="width:140px" /></div>
-      <div class="field"><label>Staff Leaving Early</label>
-        <input type="text" id="eos-early-${i}" value="${t.earlyLeave}" placeholder="Names and reason..." />
-      </div>
+      <div class="field" style="margin-bottom:0"><label>End of Cleaning</label><input type="time" id="eos-end-${i}" value="${t.end}" style="width:140px" /></div>
     </div>`
   }
 
-  // ─── RENDER FORMS ─────────────────────────────────────────────────────────
   function renderSOS() {
     const today = new Date().toISOString().split('T')[0]
     const managerField = currentUser.isManager ? `
       <div class="field"><label>Supervisor on Shift</label>
-        <input type="text" id="sos-supervisor-override" placeholder="Supervisor name" />
+        <input type="text" id="sos-supervisor-override" placeholder="Full name" />
       </div>` : ''
 
     document.getElementById('sos-form').innerHTML = `
@@ -370,7 +395,7 @@
           <div id="sos-staff-list">
             ${sosStaff.map((s, i) => staffCardHTML(s, i)).join('')}
           </div>
-          <button class="add-btn" onclick="saveAllSOS();addSOSStaff()">+ Add Staff Member</button>
+          <button class="add-btn" onclick="addSOSStaff()">+ Add Staff Member</button>
         </div>
       </div>
 
@@ -398,7 +423,7 @@
     const today = new Date().toISOString().split('T')[0]
     const managerField = currentUser.isManager ? `
       <div class="field"><label>Supervisor on Shift</label>
-        <input type="text" id="eos-supervisor-override" placeholder="Supervisor name" />
+        <input type="text" id="eos-supervisor-override" placeholder="Full name" />
       </div>` : ''
 
     document.getElementById('eos-form').innerHTML = `
@@ -409,6 +434,12 @@
           <select id="eos-shift"><option>Day</option><option>Night</option></select>
         </div>
         ${managerField}
+        <div class="field"><label>Staff Left Early</label>
+          <div id="eos-early-list">
+            ${eosEarlyStaff.map((s, i) => earlyStaffCardHTML(s, i)).join('')}
+          </div>
+          <button class="add-btn" onclick="addEarlyStaff()">+ Add Staff Member</button>
+        </div>
       </div>
 
       <div class="card">
@@ -435,7 +466,6 @@
     `
   }
 
-  // ─── GENERATE REPORTS ─────────────────────────────────────────────────────
   function generateSOS() {
     const date = document.getElementById('sos-date').value.split('-').reverse().join('/')
     const shift = document.getElementById('sos-shift').value
@@ -445,13 +475,13 @@
       ? (document.getElementById('sos-supervisor-override')?.value || currentUser.name)
       : currentUser.name
 
-    const onTime = sosStaff.filter(s => s.status === 'on-time' && s.name).map(s => s.name)
-    const late = sosStaff.filter(s => s.status === 'late' && s.name).map(s => s.name)
-
     const fire = getToggle('sos-fire')
     const tracker = getToggle('sos-tracker')
     const ppe = getToggle('sos-ppe')
     const storage = getToggle('sos-storage')
+
+    const staffList = sosStaff.filter(s => s.name).map((s, i) => `${i + 1}. ${s.name}${s.status === 'late' ? ' (Late)' : ''}`).join('\n')
+    const lateStaff = sosStaff.filter(s => s.status === 'late' && s.name).map(s => s.name)
 
     let trainText = ''
     sosTrains.forEach(t => {
@@ -467,8 +497,6 @@ Departure:          ${t.departure}
 `
     })
 
-    const staffList = sosStaff.filter(s => s.name).map((s, i) => `${i + 1}. ${s.name}${s.status === 'late' ? ' (Late)' : ''}`).join('\n')
-
     const report = `Start of Shift Report:
 
 Date: ${date}
@@ -481,9 +509,9 @@ ${supervisorName}
 Staff Headcount: ${headcount}
 Staff on Shift:
 ${staffList}
-${late.length ? `\nLate: ${late.join(', ')}` : ''}
-All Staff Clocked In — Fire Register: ${fire}
-All Staff Clocked In — Churchill System: ${tracker}
+${lateStaff.length ? `\nLate: ${lateStaff.join(', ')}` : ''}
+All Staff Clocked In - Fire Register: ${fire}
+All Staff Clocked In - Churchill System: ${tracker}
 All Staff in Full PPE & Inspected: ${ppe}
 Storage Unit & Equipment in Good Order: ${storage}
 ${trainText}`
@@ -502,6 +530,11 @@ ${trainText}`
       ? (document.getElementById('eos-supervisor-override')?.value || currentUser.name)
       : currentUser.name
 
+    let earlyText = ''
+    if (eosEarlyStaff.filter(s => s.name).length > 0) {
+      earlyText = '\nStaff Left Early:\n' + eosEarlyStaff.filter(s => s.name).map(s => `- ${s.name}: ${s.reason}`).join('\n') + '\n'
+    }
+
     let trainText = ''
     eosTrains.forEach(t => {
       const cleaning = t.cleaning === 'PHC'
@@ -511,7 +544,7 @@ ${trainText}`
 Train Number: ${t.type.toUpperCase()} ${t.id}
 Type of Cleaning: ${cleaning}
 Start of Cleaning: ${t.start}
-End of Cleaning: ${t.end}${t.earlyLeave ? `\nStaff Leaving Early: ${t.earlyLeave}` : ''}
+End of Cleaning: ${t.end}
 `
     })
 
@@ -520,6 +553,7 @@ End of Cleaning: ${t.end}${t.earlyLeave ? `\nStaff Leaving Early: ${t.earlyLeave
 Date: ${date}
 Shift: ${shift}
 Supervisor on Shift: ${supervisorName}
+${earlyText}
 ${trainText}
 Hitachi Presentation Check: ${hitachi}
 Documents Signed: ${docs}
@@ -532,7 +566,6 @@ End of Shift: ${endtime}`
     showOutput(report)
   }
 
-  // ─── OUTPUT ───────────────────────────────────────────────────────────────
   function showOutput(report) {
     document.getElementById('sos-form').style.display = 'none'
     document.getElementById('eos-form').style.display = 'none'
@@ -563,7 +596,6 @@ End of Shift: ${endtime}`
     document.getElementById('eos-form').style.display = currentMode === 'eos' ? 'block' : 'none'
   }
 
-  // ─── INIT ─────────────────────────────────────────────────────────────────
   renderPinScreen()
 </script>
 </body>
